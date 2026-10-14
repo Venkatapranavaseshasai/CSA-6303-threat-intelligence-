@@ -1,0 +1,112 @@
+import re
+
+THREAT_AREAS = {
+    "Banking Fraud Prevention": {
+        "keywords": {
+            "bank": 3, "fraud": 4, "payment": 3,
+            "transaction": 3, "phishing": 2, "money laundering": 5,
+            "credit card": 4, "unauthorized transfer": 5
+        }
+    },
+    "Healthcare Data Protection": {
+        "keywords": {
+            "hospital": 3, "healthcare": 4, "patient": 3,
+            "medical records": 5, "ransomware": 3,
+            "data breach": 3, "patient privacy": 5, "clinic": 2
+        }
+    },
+    "E-commerce Fraud Prevention": {
+        "keywords": {
+            "e-commerce": 5, "online shopping": 4,
+            "fake orders": 5, "online store": 3,
+            "refund fraud": 5, "account takeover": 4,
+            "shopping": 2, "checkout": 3
+        }
+    },
+    "Network Security Monitoring": {
+        "keywords": {
+            "network": 3, "malware": 4, "intrusion": 4,
+            "ddos": 5, "firewall": 3, "unauthorized access": 4,
+            "suspicious traffic": 5, "vulnerability": 3
+        }
+    },
+    "Cloud Security": {
+        "keywords": {
+            "cloud": 3, "aws": 3, "azure": 3,
+            "cloud storage": 5, "misconfiguration": 4,
+            "exposed bucket": 5, "cloud account": 3
+        }
+    }
+}
+
+
+def analyze_scenario(scenario):
+    text = re.sub(r"[^a-z0-9\s-]", " ", scenario.lower())
+    scores = {}
+
+    for area, details in THREAT_AREAS.items():
+        score = 0
+
+        for keyword, weight in details["keywords"].items():
+            pattern = r"\b" + re.escape(keyword) + r"\b"
+
+            if re.search(pattern, text):
+                score += weight
+
+        scores[area] = score
+
+    ranked = sorted(
+        scores.items(),
+        key=lambda item: item[1],
+        reverse=True
+    )
+
+    best_area, best_score = ranked[0]
+    total_score = sum(scores.values())
+
+    if best_score == 0:
+        print("\nNo specific threat-intelligence area identified.")
+        print("Recommendation: Perform manual threat analysis.")
+        return
+
+    confidence = (best_score / total_score) * 100
+
+    print("\n========== THREAT INTELLIGENCE REPORT ==========")
+    print("Business Scenario:", scenario)
+    print("Recommended Area:", best_area)
+    print("Matching Score:", best_score)
+    print("Confidence Indicator: {:.2f}%".format(confidence))
+
+    print("\nRanked Application Areas:")
+    for area, score in ranked:
+        if score > 0:
+            print(f"- {area}: {score} points")
+
+    print("\nRecommended Action:")
+
+    actions = {
+        "Banking Fraud Prevention":
+            "Monitor suspicious transactions and payment fraud indicators.",
+        "Healthcare Data Protection":
+            "Monitor data breaches, ransomware, and patient-data exposure.",
+        "E-commerce Fraud Prevention":
+            "Detect fake orders, refund abuse, and account takeovers.",
+        "Network Security Monitoring":
+            "Analyze network traffic, malware indicators, and intrusions.",
+        "Cloud Security":
+            "Identify exposed storage, misconfigurations, and cloud threats."
+    }
+
+    print(actions[best_area])
+    print("\nNote: The confidence indicator is a score-based estimate,")
+    print("not a statistically validated probability.")
+
+
+if __name__ == "__main__":
+    print("THREAT INTELLIGENCE CLASSIFICATION SYSTEM")
+    scenario = input("\nEnter the business scenario: ").strip()
+
+    if scenario:
+        analyze_scenario(scenario)
+    else:
+        print("Error: Please enter a valid business scenario.")
