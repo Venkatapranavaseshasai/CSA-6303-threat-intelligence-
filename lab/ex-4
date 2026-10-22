@@ -1,0 +1,29 @@
+
+def xor_encrypt_decrypt(data, key):
+    return bytes(
+        byte ^ key[i % len(key)]
+        for i, byte in enumerate(data)
+    )
+
+
+message = input("Enter message to send: ").encode()
+key = input("Enter shared key: ").encode()
+
+if not key:
+    print("Error: Key cannot be empty.")
+else:
+    # Sender encrypts the message
+    encrypted = xor_encrypt_decrypt(message, key)
+
+    print("\nOriginal message:", message.decode())
+    print("Captured encrypted data:", encrypted.hex())
+
+    # Receiver has the shared key
+    decrypted = xor_encrypt_decrypt(encrypted, key)
+    print("Receiver's decrypted message:", decrypted.decode())
+
+    # Demonstrate decryption with a wrong key
+    wrong_key = b"wrong"
+    wrong_result = xor_encrypt_decrypt(encrypted, wrong_key)
+
+    print("Decryption with wrong key:", wrong_result)
